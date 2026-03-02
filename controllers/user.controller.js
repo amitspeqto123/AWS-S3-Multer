@@ -3,17 +3,21 @@ import path from "path";
 
 
 export const registerController = async (req, res) =>{
-    console.log("Body Data", req.body);
+    console.log("Files--", req.files);
     try{
         const {fullname, gender} = req.body;
-        let imagePath = null;
-        if(req.file){
-            imagePath = req.file.path;
-        };
+        // let imagePath = null;
+        // if(req.file){
+        //     imagePath = req.file.path;
+        // };
+        let imagePaths = [];
+        if(req.files && req.files.length > 0){
+            imagePaths = req.files.map((file) => file.path) || [];
+        }
         console.log(req.body)
         const user = await register({
          fullname,
-         imagepath: imagePath,
+         imagePaths,
          gender
         });
         res.status(201).json({
