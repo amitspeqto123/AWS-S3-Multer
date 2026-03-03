@@ -1,3 +1,4 @@
+import uploadToS3 from "../middlewares/s3Upload.middleware.js";
 import { register } from "../services/user.service.js";
 import path from "path";
 
@@ -10,15 +11,25 @@ export const registerController = async (req, res) =>{
         // if(req.file){
         //     imagePath = req.file.path;
         // };
-        let imagePaths = [];
-        if(req.files && req.files.length > 0){
-            imagePaths = req.files.map((file) => file.path) || [];
+
+        // for diskStorage means iploads on local
+        // let imagePaths = [];
+        // if(req.files && req.files.length > 0){
+        //     imagePaths = req.files.map((file) => file.path) || [];
+        // }
+        // console.log(req.body)
+
+         // S3 uploads
+         let imageUrls = [];
+        if (req.files && req.files.length > 0) {
+            const uploadPromises = req.files.map(file => uploadToS3(file));
+            imageUrls = await Promise.all(uploadPromises);
         }
-        console.log(req.body)
+
         const user = await register({
-         fullname,
-         imagePaths,
-         gender
+            fullname,
+            imageUrls,
+            gender
         });
         res.status(201).json({
             success: true,
